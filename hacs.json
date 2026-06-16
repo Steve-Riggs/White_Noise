@@ -1,0 +1,6 @@
+{
+  "name": "White Noise",
+  "render_readme": true,
+  "domains": ["media_player"],
+  "homeassistant": "2024.6.0"
+}
