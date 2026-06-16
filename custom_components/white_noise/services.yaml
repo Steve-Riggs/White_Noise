@@ -1,0 +1,56 @@
+play:
+  name: Play white noise
+  description: Play a selected white noise sound on a media player.
+  fields:
+    speaker:
+      name: Speaker
+      description: Media player to play the sound on. Optional if a default speaker is configured.
+      required: false
+      selector:
+        entity:
+          domain: media_player
+    sound:
+      name: Sound
+      description: Sound ID from sensor.white_noise_sounds.
+      required: true
+      selector:
+        text:
+    duration:
+      name: Duration
+      description: Minutes before playback stops. Set to 0 to keep playing until stopped.
+      required: false
+      default: 60
+      selector:
+        number:
+          min: 0
+          max: 720
+          step: 1
+          unit_of_measurement: minutes
+          mode: box
+    volume:
+      name: Volume
+      description: Playback volume percentage. Optional; falls back to the integration default.
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 100
+          step: 1
+          unit_of_measurement: "%"
+          mode: slider
+
+stop:
+  name: Stop white noise
+  description: Stop playback on a media player.
+  fields:
+    speaker:
+      name: Speaker
+      description: Media player to stop. Optional if a default speaker is configured.
+      required: false
+      selector:
+        entity:
+          domain: media_player
+
+refresh_sounds:
+  name: Refresh sounds
+  description: Rescan the configured media folder for white noise audio files.
