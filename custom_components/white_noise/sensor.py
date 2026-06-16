@@ -53,7 +53,6 @@ class WhiteNoiseSoundsSensor(SensorEntity):
             "media_folder": str(self._data.media_folder),
             "default_speaker": self._data.default_speaker,
             "default_duration": self._data.default_duration,
-            "default_volume": self._data.default_volume,
         }
 
     @property

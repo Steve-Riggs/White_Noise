@@ -29,7 +29,7 @@ play:
           mode: box
     volume:
       name: Volume
-      description: Playback volume percentage. Optional; falls back to the integration default.
+      description: Optional playback volume percentage. If omitted, the current speaker volume is left unchanged.
       required: false
       selector:
         number:

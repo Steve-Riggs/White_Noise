@@ -13,12 +13,10 @@ from .const import (
     CONF_COPY_BUNDLED_AUDIO,
     CONF_DEFAULT_DURATION,
     CONF_DEFAULT_SPEAKER,
-    CONF_DEFAULT_VOLUME,
     CONF_MEDIA_FOLDER,
     DEFAULT_COPY_BUNDLED_AUDIO,
     DEFAULT_DURATION,
     DEFAULT_MEDIA_FOLDER,
-    DEFAULT_VOLUME,
     DOMAIN,
 )
 
@@ -93,18 +91,6 @@ def _schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
                     step=1,
                     unit_of_measurement="minutes",
                     mode=selector.NumberSelectorMode.BOX,
-                )
-            ),
-            vol.Optional(
-                CONF_DEFAULT_VOLUME,
-                default=defaults.get(CONF_DEFAULT_VOLUME, DEFAULT_VOLUME),
-            ): selector.NumberSelector(
-                selector.NumberSelectorConfig(
-                    min=0,
-                    max=100,
-                    step=1,
-                    unit_of_measurement="%",
-                    mode=selector.NumberSelectorMode.SLIDER,
                 )
             ),
             vol.Optional(

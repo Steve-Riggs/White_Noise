@@ -12,7 +12,7 @@ A small personal Home Assistant custom integration for playing white noise files
   - `white_noise.stop`
   - `white_noise.refresh_sounds`
 - Supports per-room playback by passing speaker, duration and volume in each action
-- Uses setup values only as fallbacks
+- Uses setup values only as fallbacks for speaker and duration
 
 ## Audio files
 
@@ -103,7 +103,7 @@ Each one can pass its own:
 - `duration`
 - `volume`
 
-The setup screen defaults are just fallbacks for quick testing or simple one-room setups.
+The setup screen defaults are just fallbacks for quick testing or simple one-room setups. Volume is not a setup default; it is only changed when the action/card provides a `volume` value.
 
 ## Install manually
 

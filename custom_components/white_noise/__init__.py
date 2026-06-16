@@ -21,12 +21,10 @@ from .const import (
     CONF_COPY_BUNDLED_AUDIO,
     CONF_DEFAULT_DURATION,
     CONF_DEFAULT_SPEAKER,
-    CONF_DEFAULT_VOLUME,
     CONF_MEDIA_FOLDER,
     DEFAULT_COPY_BUNDLED_AUDIO,
     DEFAULT_DURATION,
     DEFAULT_MEDIA_FOLDER,
-    DEFAULT_VOLUME,
     DOMAIN,
     SUPPORTED_EXTENSIONS,
 )
@@ -72,11 +70,6 @@ class WhiteNoiseData:
     def default_duration(self) -> int:
         """Return the configured default duration."""
         return int(self.options.get(CONF_DEFAULT_DURATION, DEFAULT_DURATION))
-
-    @property
-    def default_volume(self) -> int:
-        """Return the configured default volume."""
-        return int(self.options.get(CONF_DEFAULT_VOLUME, DEFAULT_VOLUME))
 
     async def prepare_media_folder(self) -> None:
         """Create media folder and optionally copy bundled audio."""
@@ -152,15 +145,13 @@ class WhiteNoiseData:
             raise HomeAssistantError(f"Unknown white noise sound: {sound_id}")
 
         target_duration = duration if duration is not None else self.default_duration
-        target_volume = volume if volume is not None else self.default_volume
-
         await self.async_stop(target_speaker)
 
-        if target_volume is not None:
+        if volume is not None:
             await self.hass.services.async_call(
                 "media_player",
                 "volume_set",
-                {"entity_id": target_speaker, "volume_level": target_volume / 100},
+                {"entity_id": target_speaker, "volume_level": volume / 100},
                 blocking=True,
             )
 
