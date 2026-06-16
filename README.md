@@ -1,72 +1,111 @@
 # White Noise for Home Assistant
 
-A personal Home Assistant backend integration for playing bundled or local white noise files on any `media_player` entity.
+A small personal Home Assistant custom integration for playing white noise files from the Home Assistant media folder.
 
-This first version creates a sensor entity and three services:
+## What it does
 
-- `sensor.white_noise_sounds` — exposes discovered audio files as entity attributes
-- `white_noise.play` — plays a selected sound on a selected speaker
-- `white_noise.stop` — stops a selected speaker and cancels any active stop timer
-- `white_noise.refresh_sounds` — re-scans the media folder
+- Creates `sensor.white_noise_sounds`
+- Scans `/media/white_noise` for audio files
+- Cleans filenames into friendly names
+- Adds actions:
+  - `white_noise.play`
+  - `white_noise.stop`
+  - `white_noise.refresh_sounds`
+- Supports per-room playback by passing speaker, duration and volume in each action
+- Uses setup values only as fallbacks
 
 ## Audio files
 
-The integration is designed to use Home Assistant's media folder:
+Place audio files in:
 
 ```text
 /media/white_noise
 ```
 
-Because this is for personal use, you can also bundle audio files directly in the repo here:
-
-```text
-custom_components/white_noise/audio/
-```
-
-On startup, the integration copies supported files from the bundled audio folder into `/media/white_noise`. Existing files are not overwritten.
-
 Supported formats:
 
-- `.mp3`
-- `.wav`
-- `.ogg`
-- `.m4a`
-- `.flac`
-- `.aac`
+```text
+.mp3, .wav, .ogg, .m4a, .flac
+```
 
-A tiny generated `sample-white-noise.wav` file is included so you can test the integration immediately.
+You can also bundle personal audio files in:
 
-## Clean file names
+```text
+custom_components/white_noise/audio
+```
 
-File names are cleaned for the entity attributes.
+When `Copy bundled audio files into the media folder` is enabled, the integration copies those files into `/media/white_noise` on startup. Existing files are not overwritten.
+
+## Filename cleanup
 
 Examples:
 
 ```text
-pink_noise.mp3      -> Pink Noise
-womb-sounds.mp3     -> Womb Sounds
-rain storm.m4a      -> Rain Storm
+womb-sounds.mp3 -> Womb Sounds
+pink_noise.mp3 -> Pink Noise
 ```
 
-The generated sound IDs are stable and automation-friendly:
+The action uses IDs:
 
 ```text
-pink_noise.mp3      -> pink_noise
-womb-sounds.mp3     -> womb_sounds
+womb_sounds
+pink_noise
 ```
 
-## Installation using HACS custom repository
+Check `sensor.white_noise_sounds` for the exact IDs.
 
-1. Push this folder to your GitHub repository.
-2. In Home Assistant, open HACS.
-3. Add your GitHub repo as a custom repository.
-4. Choose repository type: **Integration**.
-5. Install the integration.
-6. Restart Home Assistant.
-7. Go to **Settings > Devices & services > Add integration**.
-8. Search for **White Noise**.
+## Example actions
 
-## Manual installation
+Nursery:
+
+```yaml
+action: white_noise.play
+data:
+  speaker: media_player.nursery_speaker
+  sound: pink_noise
+  duration: 60
+  volume: 18
+```
+
+Bedroom:
+
+```yaml
+action: white_noise.play
+data:
+  speaker: media_player.bedroom_speaker
+  sound: rain
+  duration: 30
+  volume: 25
+```
+
+Stop a room:
+
+```yaml
+action: white_noise.stop
+data:
+  speaker: media_player.nursery_speaker
+```
+
+Refresh sounds:
+
+```yaml
+action: white_noise.refresh_sounds
+```
+
+## Multiple rooms
+
+Use one integration instance and create multiple cards, buttons, scripts or automations.
+
+Each one can pass its own:
+
+- `speaker`
+- `sound`
+- `duration`
+- `volume`
+
+The setup screen defaults are just fallbacks for quick testing or simple one-room setups.
+
+## Install manually
 
 Copy this folder:
 
@@ -74,109 +113,14 @@ Copy this folder:
 custom_components/white_noise
 ```
 
-into your Home Assistant config folder:
+to:
 
 ```text
 /config/custom_components/white_noise
 ```
 
-Then restart Home Assistant and add the integration from **Settings > Devices & services**.
+Restart Home Assistant, then add **White Noise** from **Settings > Devices & services**.
 
-## Configuration options
+## HACS custom repository
 
-During setup, you can choose:
-
-- default speaker
-- default duration
-- default volume
-- media folder
-- whether bundled audio files should be copied into the media folder
-
-Defaults:
-
-```text
-Default media folder: /media/white_noise
-Default duration:     60 minutes
-Default volume:       30%
-Copy bundled audio:   enabled
-```
-
-## Example service call
-
-```yaml
-service: white_noise.play
-data:
-  speaker: media_player.nursery_speaker
-  sound: sample_white_noise
-  duration: 60
-  volume: 25
-```
-
-You can also omit `speaker` if you configured a default speaker.
-
-```yaml
-service: white_noise.play
-data:
-  sound: sample_white_noise
-  duration: 30
-```
-
-## Stop playback
-
-```yaml
-service: white_noise.stop
-data:
-  speaker: media_player.nursery_speaker
-```
-
-## Refresh sounds
-
-Use this after adding or removing files from `/media/white_noise`:
-
-```yaml
-service: white_noise.refresh_sounds
-```
-
-## Entity attributes
-
-The sensor exposes the discovered files in its attributes:
-
-```yaml
-sounds:
-  - id: sample_white_noise
-    name: Sample White Noise
-    filename: sample-white-noise.wav
-    media_content_id: media-source://media_source/local/white_noise/sample-white-noise.wav
-sound_count: 1
-media_folder: /media/white_noise
-default_speaker: media_player.nursery_speaker
-default_duration: 60
-default_volume: 30
-```
-
-This is intended to make a future Lovelace card easy: the card can read `sensor.white_noise_sounds` and build a dropdown from the `sounds` attribute.
-
-## Suggested dashboard button
-
-```yaml
-type: button
-name: Play White Noise
-icon: mdi:speaker-wireless
-tap_action:
-  action: call-service
-  service: white_noise.play
-  data:
-    sound: sample_white_noise
-    duration: 60
-```
-
-## Notes
-
-This is a starter integration aimed at personal use. It deliberately keeps the logic simple and local:
-
-- no cloud service
-- no external Python dependencies
-- no audio downloads
-- no frontend card yet
-
-A future version could add a Lovelace card, a proper dropdown editor, and per-room presets.
+Add the GitHub repo as a custom HACS repository with type **Integration**.
