@@ -105,6 +105,69 @@ Each one can pass its own:
 
 The setup screen does not ask for speaker, duration or volume. Those belong in the card, action, script or automation that starts playback.
 
+## White Noise card
+
+The integration includes a Lovelace card:
+
+```text
+/white_noise/white-noise-card.js
+```
+
+Add it as a dashboard resource, then use:
+
+```yaml
+type: custom:white-noise-card
+entity: sensor.white_noise_sounds
+title: Nursery White Noise
+default_speaker: media_player.nursery_speaker
+default_duration: 60
+default_volume: 20
+accent_color: "#f5a623"
+show_browser_preview: true
+speakers:
+  - entity: media_player.nursery_speaker
+    name: Nursery
+  - entity: media_player.bedroom_speaker
+    name: Bedroom
+durations:
+  - label: 15m
+    minutes: 15
+  - label: 30m
+    minutes: 30
+  - label: 1h
+    minutes: 60
+  - label: 2h
+    minutes: 120
+```
+
+### Compact screen example
+
+For a small panel such as a Sonoff NSPanel Pro Gen2, use one pinned speaker, fewer duration buttons and compact mode:
+
+```yaml
+type: custom:white-noise-card
+entity: sensor.white_noise_sounds
+title: Nursery
+compact_mode: true
+default_speaker: media_player.nursery_speaker
+default_duration: 30
+default_volume: 18
+accent_color: "#f5a623"
+show_browser_preview: false
+speakers:
+  - entity: media_player.nursery_speaker
+    name: Nursery
+durations:
+  - label: 15m
+    minutes: 15
+  - label: 30m
+    minutes: 30
+  - label: 1h
+    minutes: 60
+  - label: ∞
+    minutes: 0
+```
+
 ## Browser test card
 
 The integration includes a tiny browser-only test card. This is only for testing whether the discovered files can play in your current browser window.

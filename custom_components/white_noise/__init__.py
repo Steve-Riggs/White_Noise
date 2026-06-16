@@ -247,19 +247,33 @@ async def _register_static_paths(hass: HomeAssistant) -> None:
     if hass.data[DOMAIN].get("static_paths_registered"):
         return
 
-    card_path = Path(__file__).parent / "www" / "browser-test-card.js"
-    if not card_path.exists():
-        return
+    www_path = Path(__file__).parent / "www"
+    static_paths = []
 
-    await hass.http.async_register_static_paths(
-        [
+    browser_test_card_path = www_path / "browser-test-card.js"
+    if browser_test_card_path.exists():
+        static_paths.append(
             StaticPathConfig(
                 "/white_noise/browser-test-card.js",
+                str(browser_test_card_path),
+                True,
+            )
+        )
+
+    card_path = www_path / "white-noise-card.js"
+    if card_path.exists():
+        static_paths.append(
+            StaticPathConfig(
+                "/white_noise/white-noise-card.js",
                 str(card_path),
                 True,
             )
-        ]
-    )
+        )
+
+    if not static_paths:
+        return
+
+    await hass.http.async_register_static_paths(static_paths)
     hass.data[DOMAIN]["static_paths_registered"] = True
 
 
