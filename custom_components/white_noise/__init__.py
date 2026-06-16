@@ -8,8 +8,8 @@ from pathlib import Path
 import shutil
 from typing import Any
 
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_NAME
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv
@@ -19,11 +19,8 @@ import voluptuous as vol
 
 from .const import (
     CONF_COPY_BUNDLED_AUDIO,
-    CONF_DEFAULT_DURATION,
-    CONF_DEFAULT_SPEAKER,
     CONF_MEDIA_FOLDER,
     DEFAULT_COPY_BUNDLED_AUDIO,
-    DEFAULT_DURATION,
     DEFAULT_MEDIA_FOLDER,
     DOMAIN,
     SUPPORTED_EXTENSIONS,
@@ -60,16 +57,6 @@ class WhiteNoiseData:
     def media_folder(self) -> Path:
         """Return the configured media folder."""
         return Path(self.options.get(CONF_MEDIA_FOLDER, DEFAULT_MEDIA_FOLDER))
-
-    @property
-    def default_speaker(self) -> str | None:
-        """Return the configured default speaker, if set."""
-        return self.options.get(CONF_DEFAULT_SPEAKER) or None
-
-    @property
-    def default_duration(self) -> int:
-        """Return the configured default duration."""
-        return int(self.options.get(CONF_DEFAULT_DURATION, DEFAULT_DURATION))
 
     async def prepare_media_folder(self) -> None:
         """Create media folder and optionally copy bundled audio."""
@@ -125,17 +112,13 @@ class WhiteNoiseData:
 
     async def async_play(
         self,
-        speaker: str | None,
+        speaker: str,
         sound_id: str,
         duration: int | None,
         volume: int | None,
     ) -> None:
         """Play selected sound and stop after duration."""
-        target_speaker = speaker or self.default_speaker
-        if not target_speaker:
-            raise HomeAssistantError(
-                "No speaker supplied and no default speaker configured"
-            )
+        target_speaker = speaker
 
         if not self.sounds:
             await self.refresh_sounds()
@@ -144,7 +127,6 @@ class WhiteNoiseData:
         if sound is None:
             raise HomeAssistantError(f"Unknown white noise sound: {sound_id}")
 
-        target_duration = duration if duration is not None else self.default_duration
         await self.async_stop(target_speaker)
 
         if volume is not None:
@@ -166,18 +148,14 @@ class WhiteNoiseData:
             blocking=True,
         )
 
-        if target_duration > 0:
+        if duration is not None and duration > 0:
             self.stop_tasks[target_speaker] = self.hass.async_create_task(
-                self._stop_later(target_speaker, target_duration)
+                self._stop_later(target_speaker, duration)
             )
 
-    async def async_stop(self, speaker: str | None) -> None:
+    async def async_stop(self, speaker: str) -> None:
         """Stop playback on a speaker."""
-        target_speaker = speaker or self.default_speaker
-        if not target_speaker:
-            raise HomeAssistantError(
-                "No speaker supplied and no default speaker configured"
-            )
+        target_speaker = speaker
 
         task = self.stop_tasks.pop(target_speaker, None)
         if task and not task.done():
@@ -206,7 +184,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     async def handle_play(call: ServiceCall) -> None:
         entry_data = _get_primary_data(hass)
         await entry_data.async_play(
-            call.data.get("speaker"),
+            call.data["speaker"],
             call.data["sound"],
             call.data.get("duration"),
             call.data.get("volume"),
@@ -214,7 +192,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
     async def handle_stop(call: ServiceCall) -> None:
         entry_data = _get_primary_data(hass)
-        await entry_data.async_stop(call.data.get("speaker"))
+        await entry_data.async_stop(call.data["speaker"])
 
     async def handle_refresh_sounds(call: ServiceCall) -> None:
         entry_data = _get_primary_data(hass)
@@ -226,7 +204,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         handle_play,
         schema=vol.Schema(
             {
-                vol.Optional("speaker"): cv.entity_id,
+                vol.Required("speaker"): cv.entity_id,
                 vol.Required("sound"): cv.string,
                 vol.Optional("duration"): vol.All(vol.Coerce(int), vol.Range(min=0)),
                 vol.Optional("volume"): vol.All(vol.Coerce(int), vol.Range(min=0, max=100)),
@@ -237,7 +215,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         DOMAIN,
         "stop",
         handle_stop,
-        schema=vol.Schema({vol.Optional("speaker"): cv.entity_id}),
+        schema=vol.Schema({vol.Required("speaker"): cv.entity_id}),
     )
     hass.services.async_register(
         DOMAIN,
@@ -257,10 +235,32 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     await data.prepare_media_folder()
     await data.refresh_sounds()
+    await _register_static_paths(hass)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(async_update_options))
 
     return True
+
+
+async def _register_static_paths(hass: HomeAssistant) -> None:
+    """Register frontend assets served by this integration."""
+    if hass.data[DOMAIN].get("static_paths_registered"):
+        return
+
+    card_path = Path(__file__).parent / "www" / "browser-test-card.js"
+    if not card_path.exists():
+        return
+
+    await hass.http.async_register_static_paths(
+        [
+            StaticPathConfig(
+                "/white_noise/browser-test-card.js",
+                str(card_path),
+                True,
+            )
+        ]
+    )
+    hass.data[DOMAIN]["static_paths_registered"] = True
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

@@ -12,7 +12,7 @@ A small personal Home Assistant custom integration for playing white noise files
   - `white_noise.stop`
   - `white_noise.refresh_sounds`
 - Supports per-room playback by passing speaker, duration and volume in each action
-- Uses setup values only as fallbacks for speaker and duration
+- Setup only asks for the media folder and whether bundled audio should be copied
 
 ## Audio files
 
@@ -103,7 +103,26 @@ Each one can pass its own:
 - `duration`
 - `volume`
 
-The setup screen defaults are just fallbacks for quick testing or simple one-room setups. Volume is not a setup default; it is only changed when the action/card provides a `volume` value.
+The setup screen does not ask for speaker, duration or volume. Those belong in the card, action, script or automation that starts playback.
+
+## Browser test card
+
+The integration includes a tiny browser-only test card. This is only for testing whether the discovered files can play in your current browser window.
+
+Add this Lovelace resource:
+
+```text
+/white_noise/browser-test-card.js
+```
+
+Then add this card:
+
+```yaml
+type: custom:white-noise-browser-test-card
+entity: sensor.white_noise_sounds
+```
+
+This does not play on a Home Assistant speaker. It plays in the browser tab/device viewing the dashboard.
 
 ## Install manually
 

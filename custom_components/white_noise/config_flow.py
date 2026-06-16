@@ -5,17 +5,13 @@ from __future__ import annotations
 from typing import Any
 
 from homeassistant import config_entries
-from homeassistant.helpers import selector
 
 import voluptuous as vol
 
 from .const import (
     CONF_COPY_BUNDLED_AUDIO,
-    CONF_DEFAULT_DURATION,
-    CONF_DEFAULT_SPEAKER,
     CONF_MEDIA_FOLDER,
     DEFAULT_COPY_BUNDLED_AUDIO,
-    DEFAULT_DURATION,
     DEFAULT_MEDIA_FOLDER,
     DOMAIN,
 )
@@ -75,24 +71,6 @@ def _schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
 
     return vol.Schema(
         {
-            vol.Optional(
-                CONF_DEFAULT_SPEAKER,
-                default=defaults.get(CONF_DEFAULT_SPEAKER, ""),
-            ): selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="media_player", multiple=False)
-            ),
-            vol.Optional(
-                CONF_DEFAULT_DURATION,
-                default=defaults.get(CONF_DEFAULT_DURATION, DEFAULT_DURATION),
-            ): selector.NumberSelector(
-                selector.NumberSelectorConfig(
-                    min=0,
-                    max=720,
-                    step=1,
-                    unit_of_measurement="minutes",
-                    mode=selector.NumberSelectorMode.BOX,
-                )
-            ),
             vol.Optional(
                 CONF_MEDIA_FOLDER,
                 default=defaults.get(CONF_MEDIA_FOLDER, DEFAULT_MEDIA_FOLDER),

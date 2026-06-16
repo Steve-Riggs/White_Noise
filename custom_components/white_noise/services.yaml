@@ -4,8 +4,8 @@ play:
   fields:
     speaker:
       name: Speaker
-      description: Media player to play the sound on. Optional if a default speaker is configured.
-      required: false
+      description: Media player to play the sound on.
+      required: true
       selector:
         entity:
           domain: media_player
@@ -17,9 +17,8 @@ play:
         text:
     duration:
       name: Duration
-      description: Minutes before playback stops. Set to 0 to keep playing until stopped.
+      description: Optional minutes before playback stops. Omit or set to 0 to keep playing until stopped.
       required: false
-      default: 60
       selector:
         number:
           min: 0
@@ -45,8 +44,8 @@ stop:
   fields:
     speaker:
       name: Speaker
-      description: Media player to stop. Optional if a default speaker is configured.
-      required: false
+      description: Media player to stop.
+      required: true
       selector:
         entity:
           domain: media_player

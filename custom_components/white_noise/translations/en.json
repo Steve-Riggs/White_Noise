@@ -3,10 +3,8 @@
     "step": {
       "user": {
         "title": "Set up White Noise",
-        "description": "Choose optional fallback defaults and where your white noise audio files should live.",
+        "description": "Choose where your white noise audio files should live.",
         "data": {
-          "default_speaker": "Default speaker",
-          "default_duration": "Default duration",
           "media_folder": "Media folder",
           "copy_bundled_audio": "Copy bundled audio files into the media folder"
         }
@@ -17,10 +15,8 @@
     "step": {
       "init": {
         "title": "White Noise options",
-        "description": "Update optional fallback defaults. Cards and actions can override these per room.",
+        "description": "Update where your white noise audio files should live.",
         "data": {
-          "default_speaker": "Default speaker",
-          "default_duration": "Default duration",
           "media_folder": "Media folder",
           "copy_bundled_audio": "Copy bundled audio files into the media folder"
         }

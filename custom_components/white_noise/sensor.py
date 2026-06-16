@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -47,15 +49,28 @@ class WhiteNoiseSoundsSensor(SensorEntity):
                     "id": sound.sound_id,
                     "name": sound.name,
                     "file_name": sound.file_name,
+                    "media_content_id": _media_source_id(
+                        self._data.media_folder,
+                        sound.path,
+                        sound.file_name,
+                    ),
                 }
                 for sound in self._data.sounds.values()
             ],
             "media_folder": str(self._data.media_folder),
-            "default_speaker": self._data.default_speaker,
-            "default_duration": self._data.default_duration,
         }
 
     @property
     def _data(self):
         """Return runtime data."""
         return self.hass.data[DOMAIN][self._entry.entry_id]["data"]
+
+
+def _media_source_id(media_folder: Path, sound_path: str, file_name: str) -> str:
+    """Build a media-source URI for local media playback."""
+    try:
+        relative_path = Path(sound_path).relative_to("/media")
+    except ValueError:
+        relative_path = Path(media_folder.name) / file_name
+
+    return f"media-source://media_source/local/{relative_path.as_posix()}"
