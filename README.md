@@ -36,6 +36,20 @@ custom_components/white_noise/audio
 
 When `Copy bundled audio files into the media folder` is enabled, the integration copies those files into `/media/white_noise` on startup. Existing files are not overwritten.
 
+To add more audio files:
+
+1. Add files to `/media/white_noise`
+2. Run `white_noise.refresh_sounds`, or restart Home Assistant
+3. Check `sensor.white_noise_sounds` for the new sound IDs
+
+If you bundle files in GitHub instead, put them in:
+
+```text
+custom_components/white_noise/audio
+```
+
+Then upload the updated repo, redownload in HACS and restart Home Assistant. The integration will copy new bundled files into `/media/white_noise`, but it will not delete or overwrite existing files.
+
 ## Filename cleanup
 
 Examples:
@@ -62,7 +76,7 @@ Nursery:
 action: white_noise.play
 data:
   speaker: media_player.nursery_speaker
-  sound: pink_noise
+  sound: white_noise
   duration: 60
   volume: 18
 ```
@@ -113,17 +127,18 @@ The integration includes a Lovelace card:
 /white_noise/white-noise-card.js
 ```
 
-Add it as a dashboard resource, then use:
+Add it as a dashboard resource. The card supports the Home Assistant visual editor for the common settings, or you can use YAML:
 
 ```yaml
 type: custom:white-noise-card
 entity: sensor.white_noise_sounds
 title: Nursery White Noise
 default_speaker: media_player.nursery_speaker
+default_play_target: this_device
 default_duration: 60
 default_volume: 20
 accent_color: "#f5a623"
-show_browser_preview: true
+allow_this_device: true
 speakers:
   - entity: media_player.nursery_speaker
     name: Nursery
@@ -140,6 +155,11 @@ durations:
     minutes: 120
 ```
 
+The card has one Play/Stop toggle button. It can play either:
+
+- From `This device`, meaning the browser/tablet/phone currently viewing the dashboard
+- From a selected Home Assistant `media_player` speaker
+
 ### Compact screen example
 
 For a small panel such as a Sonoff NSPanel Pro Gen2, use one pinned speaker, fewer duration buttons and compact mode:
@@ -150,10 +170,11 @@ entity: sensor.white_noise_sounds
 title: Nursery
 compact_mode: true
 default_speaker: media_player.nursery_speaker
+default_play_target: this_device
 default_duration: 30
 default_volume: 18
 accent_color: "#f5a623"
-show_browser_preview: false
+allow_this_device: true
 speakers:
   - entity: media_player.nursery_speaker
     name: Nursery

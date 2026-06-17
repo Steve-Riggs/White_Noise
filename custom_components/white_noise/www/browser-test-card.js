@@ -209,7 +209,9 @@ class WhiteNoiseBrowserTestCard extends HTMLElement {
   }
 }
 
-customElements.define("white-noise-browser-test-card", WhiteNoiseBrowserTestCard);
+if (!customElements.get("white-noise-browser-test-card")) {
+  customElements.define("white-noise-browser-test-card", WhiteNoiseBrowserTestCard);
+}
 
 window.customCards = window.customCards || [];
 window.customCards.push({
