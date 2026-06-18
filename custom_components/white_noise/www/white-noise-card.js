@@ -19,6 +19,8 @@ class WhiteNoiseCard extends HTMLElement {
       entity: "sensor.white_noise_sounds",
       title: "White Noise",
       show_title: false,
+      show_current_sound: true,
+      show_meta: true,
       speakers: [],
       durations: [
         { label: "15m", minutes: 15 },
@@ -74,6 +76,8 @@ class WhiteNoiseCard extends HTMLElement {
       entity: "sensor.white_noise_sounds",
       title: "White Noise",
       show_title: false,
+      show_current_sound: true,
+      show_meta: true,
       default_play_target: "this_device",
       default_duration: 30,
       default_volume: 20,
@@ -397,10 +401,22 @@ class WhiteNoiseCard extends HTMLElement {
               ? `<div class="head"><div class="title">${this._escape(this._config.title)}</div><div class="target-pill">${this._escape(this._selectedSpeakerName())}</div></div>`
               : ""
           }
-          <div>
-            <div class="sound-name">${this._escape(selectedSound?.name || "No Sounds")}</div>
-            <div class="meta">${this._escape(this._durationLabel(this._selectedDuration))} · ${this._volume}% · ${this._escape(this._selectedSpeakerName())}</div>
-          </div>
+          ${
+            this._config.show_current_sound === false && this._config.show_meta === false
+              ? ""
+              : `<div>
+                  ${
+                    this._config.show_current_sound === false
+                      ? ""
+                      : `<div class="sound-name">${this._escape(selectedSound?.name || "No Sounds")}</div>`
+                  }
+                  ${
+                    this._config.show_meta === false
+                      ? ""
+                      : `<div class="meta">${this._escape(this._durationLabel(this._selectedDuration))} · ${this._volume}% · ${this._escape(this._selectedSpeakerName())}</div>`
+                  }
+                </div>`
+          }
           <div class="controls">
             <div class="field">
               <label>Sound</label>
@@ -597,8 +613,9 @@ class WhiteNoiseCardEditor extends HTMLElement {
       </style>
       <div class="editor">
         <label class="check"><input class="show-title" type="checkbox" ${this._config.show_title ? "checked" : ""}> Show heading</label>
+        <label class="check"><input class="show-current-sound" type="checkbox" ${this._config.show_current_sound !== false ? "checked" : ""}> Show current sound title</label>
+        <label class="check"><input class="show-meta" type="checkbox" ${this._config.show_meta !== false ? "checked" : ""}> Show subtitle</label>
         <div class="field"><label>Heading text</label><input class="title" value="${this._escape(this._config.title)}"></div>
-        <div class="field"><label>Sound entity</label><input class="entity" value="${this._escape(this._config.entity)}"></div>
         <div class="row">
           <div class="field"><label>Accent colour</label><input class="accent-color" type="color" value="${this._escape(this._config.accent_color)}"></div>
           <div class="field"><label>Background colour</label><input class="background-color" type="color" value="${this._escape(this._config.background_color)}"></div>
@@ -631,8 +648,9 @@ class WhiteNoiseCardEditor extends HTMLElement {
     `;
 
     this.shadowRoot.querySelector(".show-title")?.addEventListener("change", (event) => this._updateConfig({ show_title: event.target.checked }));
+    this.shadowRoot.querySelector(".show-current-sound")?.addEventListener("change", (event) => this._updateConfig({ show_current_sound: event.target.checked }));
+    this.shadowRoot.querySelector(".show-meta")?.addEventListener("change", (event) => this._updateConfig({ show_meta: event.target.checked }));
     this.shadowRoot.querySelector(".title")?.addEventListener("change", (event) => this._updateConfig({ title: event.target.value }));
-    this.shadowRoot.querySelector(".entity")?.addEventListener("change", (event) => this._updateConfig({ entity: event.target.value }));
     this.shadowRoot.querySelector(".accent-color")?.addEventListener("change", (event) => this._updateConfig({ accent_color: event.target.value }));
     this.shadowRoot.querySelector(".background-color")?.addEventListener("change", (event) => this._updateConfig({ background_color: event.target.value }));
     this.shadowRoot.querySelector(".background-opacity")?.addEventListener("change", (event) => this._updateConfig({ background_opacity: Number(event.target.value) }));

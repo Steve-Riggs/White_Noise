@@ -47,7 +47,7 @@ The integration copies bundled audio into `/media/white_noise` on startup. Exist
 Add this as a JavaScript module resource:
 
 ```text
-/white_noise/white-noise-card.js?v=0.7.0
+/white_noise/white-noise-card.js?v=0.8.1
 ```
 
 ## Card Example
@@ -56,6 +56,8 @@ Add this as a JavaScript module resource:
 type: custom:white-noise-card
 entity: sensor.white_noise_sounds
 show_title: false
+show_current_sound: true
+show_meta: true
 default_play_target: this_device
 default_speaker: media_player.nursery_speaker
 default_duration: 30
@@ -85,6 +87,8 @@ If `durations: []`, no timer buttons are shown and `default_duration` is used.
 type: custom:white-noise-card
 entity: sensor.white_noise_sounds
 show_title: false
+show_current_sound: false
+show_meta: false
 compact_mode: true
 default_play_target: this_device
 default_speaker: media_player.nursery_speaker
@@ -110,6 +114,8 @@ durations:
 The card includes a visual editor for:
 
 - heading visibility
+- current sound title visibility
+- subtitle visibility
 - accent colour
 - background colour
 - background opacity
@@ -119,3 +125,11 @@ The card includes a visual editor for:
 - compact mode
 - available speakers
 - timer buttons
+
+Once the card is stable, you can use the generic resource instead:
+
+```text
+/white_noise/white-noise-card.js
+```
+
+Use the `?v=` suffix when you need to force Home Assistant or the browser to load a fresh card update.
