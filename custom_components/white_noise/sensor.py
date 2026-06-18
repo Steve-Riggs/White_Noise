@@ -62,15 +62,12 @@ class WhiteNoiseSoundsSensor(SensorEntity):
 
     @property
     def _data(self):
-        """Return runtime data."""
         return self.hass.data[DOMAIN][self._entry.entry_id]["data"]
 
 
 def _media_source_id(media_folder: Path, sound_path: str, file_name: str) -> str:
-    """Build a media-source URI for local media playback."""
     try:
         relative_path = Path(sound_path).relative_to("/media")
     except ValueError:
         relative_path = Path(media_folder.name) / file_name
-
     return f"media-source://media_source/local/{relative_path.as_posix()}"

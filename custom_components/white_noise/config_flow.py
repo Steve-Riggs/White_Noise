@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import Any
 
 from homeassistant import config_entries
-
 import voluptuous as vol
 
 from .const import (
@@ -32,15 +31,10 @@ class WhiteNoiseConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             return self.async_create_entry(title="White Noise", data=user_input)
 
-        return self.async_show_form(
-            step_id="user",
-            data_schema=_schema(),
-        )
+        return self.async_show_form(step_id="user", data_schema=_schema())
 
     @staticmethod
-    def async_get_options_flow(
-        config_entry: config_entries.ConfigEntry,
-    ) -> WhiteNoiseOptionsFlow:
+    def async_get_options_flow(config_entry: config_entries.ConfigEntry):
         """Create the options flow."""
         return WhiteNoiseOptionsFlow(config_entry)
 
@@ -59,16 +53,12 @@ class WhiteNoiseOptionsFlow(config_entries.OptionsFlow):
             return self.async_create_entry(title="", data=user_input)
 
         options = {**self.config_entry.data, **self.config_entry.options}
-        return self.async_show_form(
-            step_id="init",
-            data_schema=_schema(options),
-        )
+        return self.async_show_form(step_id="init", data_schema=_schema(options))
 
 
 def _schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
     """Return config/options schema."""
     defaults = defaults or {}
-
     return vol.Schema(
         {
             vol.Optional(

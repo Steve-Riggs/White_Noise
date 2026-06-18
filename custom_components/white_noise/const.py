@@ -1,7 +1,5 @@
 """Constants for the White Noise integration."""
 
-from __future__ import annotations
-
 DOMAIN = "white_noise"
 
 CONF_MEDIA_FOLDER = "media_folder"
