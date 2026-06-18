@@ -47,7 +47,7 @@ The integration copies bundled audio into `/media/white_noise` on startup. Exist
 Add this as a JavaScript module resource:
 
 ```text
-/white_noise/white-noise-card.js?v=0.8.1
+/white_noise/white-noise-card.js?v=0.8.2
 ```
 
 ## Card Example
@@ -125,6 +125,8 @@ The card includes a visual editor for:
 - compact mode
 - available speakers
 - timer buttons
+
+The editor hides Browser Mod players, unavailable players and duplicate friendly names by default. Tick **Show Browser Mod players** or **Show unavailable players** if you need those in the speaker picker.
 
 Once the card is stable, you can use the generic resource instead:
 

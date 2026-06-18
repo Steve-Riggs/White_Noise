@@ -33,6 +33,8 @@ class WhiteNoiseCard extends HTMLElement {
       default_play_target: "this_device",
       compact_mode: false,
       allow_this_device: true,
+      show_browser_mod_speakers: false,
+      show_unavailable_speakers: false,
       show_volume: true,
       accent_color: "#f5a623",
       background_color: "#3b285d",
@@ -82,6 +84,8 @@ class WhiteNoiseCard extends HTMLElement {
       default_duration: 30,
       default_volume: 20,
       allow_this_device: true,
+      show_browser_mod_speakers: false,
+      show_unavailable_speakers: false,
       compact_mode: false,
       accent_color: "#f5a623",
       background_color: "#3b285d",
@@ -506,12 +510,39 @@ class WhiteNoiseCardEditor extends HTMLElement {
   }
 
   _mediaPlayers() {
+    const seenNames = new Set();
+
     return Object.entries(this._hass?.states || {})
-      .filter(([entityId]) => entityId.startsWith("media_player."))
+      .filter(([entityId, state]) => {
+        if (!entityId.startsWith("media_player.")) return false;
+
+        const friendlyName = state.attributes?.friendly_name || "";
+        const searchable = `${entityId} ${friendlyName}`.toLowerCase();
+
+        if (!this._config.show_browser_mod_speakers && searchable.includes("browser_mod")) {
+          return false;
+        }
+
+        if (!this._config.show_browser_mod_speakers && searchable.includes("browser mod")) {
+          return false;
+        }
+
+        if (!this._config.show_unavailable_speakers && ["unavailable", "unknown"].includes(state.state)) {
+          return false;
+        }
+
+        return true;
+      })
       .map(([entityId, state]) => ({
         entity: entityId,
         name: state.attributes?.friendly_name || entityId.replace(/^media_player\./, "").replace(/_/g, " "),
       }))
+      .filter((player) => {
+        const key = player.name.trim().toLowerCase();
+        if (seenNames.has(key)) return false;
+        seenNames.add(key);
+        return true;
+      })
       .sort((a, b) => a.name.localeCompare(b.name));
   }
 
@@ -633,6 +664,8 @@ class WhiteNoiseCardEditor extends HTMLElement {
           <div class="field"><label>Default volume</label><input class="default-volume" type="number" min="0" max="100" value="${this._escape(this._config.default_volume)}"></div>
         </div>
         <label class="check"><input class="allow-this-device" type="checkbox" ${this._config.allow_this_device ? "checked" : ""}> Allow this device</label>
+        <label class="check"><input class="show-browser-mod-speakers" type="checkbox" ${this._config.show_browser_mod_speakers ? "checked" : ""}> Show Browser Mod players</label>
+        <label class="check"><input class="show-unavailable-speakers" type="checkbox" ${this._config.show_unavailable_speakers ? "checked" : ""}> Show unavailable players</label>
         <label class="check"><input class="compact-mode" type="checkbox" ${this._config.compact_mode ? "checked" : ""}> Compact mode</label>
         <div class="field">
           <label>Add speakers from Home Assistant</label>
@@ -660,6 +693,8 @@ class WhiteNoiseCardEditor extends HTMLElement {
     this.shadowRoot.querySelector(".default-duration")?.addEventListener("change", (event) => this._updateConfig({ default_duration: Number(event.target.value) }));
     this.shadowRoot.querySelector(".default-volume")?.addEventListener("change", (event) => this._updateConfig({ default_volume: Number(event.target.value) }));
     this.shadowRoot.querySelector(".allow-this-device")?.addEventListener("change", (event) => this._updateConfig({ allow_this_device: event.target.checked }));
+    this.shadowRoot.querySelector(".show-browser-mod-speakers")?.addEventListener("change", (event) => this._updateConfig({ show_browser_mod_speakers: event.target.checked }));
+    this.shadowRoot.querySelector(".show-unavailable-speakers")?.addEventListener("change", (event) => this._updateConfig({ show_unavailable_speakers: event.target.checked }));
     this.shadowRoot.querySelector(".compact-mode")?.addEventListener("change", (event) => this._updateConfig({ compact_mode: event.target.checked }));
     this.shadowRoot.querySelector(".speaker-picker")?.addEventListener("change", (event) => { this._speakerPicker = event.target.value; });
     this.shadowRoot.querySelector(".add-speaker")?.addEventListener("click", () => this._addSpeaker(this._speakerPicker));
