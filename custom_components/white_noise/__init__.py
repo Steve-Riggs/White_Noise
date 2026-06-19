@@ -122,16 +122,32 @@ class WhiteNoiseData:
                 blocking=True,
             )
 
-        await self.hass.services.async_call(
-            "media_player",
-            "play_media",
-            {
-                "entity_id": speaker,
-                "media_content_id": _media_source_id(self.media_folder, sound.path, sound.file_name),
-                "media_content_type": "music",
-            },
-            blocking=True,
-        )
+        media_content_id = _media_source_id(self.media_folder, sound.path, sound.file_name)
+        try:
+            await self.hass.services.async_call(
+                "media_player",
+                "play_media",
+                {
+                    "entity_id": speaker,
+                    "media": {
+                        "media_content_id": media_content_id,
+                        "media_content_type": "music",
+                        "metadata": {},
+                    },
+                },
+                blocking=True,
+            )
+        except Exception:
+            await self.hass.services.async_call(
+                "media_player",
+                "play_media",
+                {
+                    "entity_id": speaker,
+                    "media_content_id": media_content_id,
+                    "media_content_type": "music",
+                },
+                blocking=True,
+            )
 
         if duration is not None and duration > 0:
             self.stop_tasks[speaker] = self.hass.async_create_task(

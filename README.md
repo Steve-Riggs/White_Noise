@@ -47,7 +47,7 @@ The integration copies bundled audio into `/media/white_noise` on startup. Exist
 Add this as a JavaScript module resource:
 
 ```text
-/white_noise/white-noise-card.js?v=0.8.2
+/white_noise/white-noise-card.js?v=0.8.3
 ```
 
 ## Card Example
